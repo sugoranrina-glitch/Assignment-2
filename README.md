@@ -1,67 +1,95 @@
-# Assignment 2 – Student File Handling and LINQ
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
-##  Description
-This project is a C# Console Application that demonstrates:
-- File creation and writing
-- Reading data from a text file
-- Using LINQ Method Syntax
-- Displaying program output results
+namespace Assignment2
+{
+    class Student
+    {
+        public int studentID;
+        public string name;
+        public string course;
+        public int grade;
 
----
+        // Constructor
+        public Student(int studentID, string name, string course, int grade)
+        {
+            this.studentID = studentID;
+            this.name = name;
+            this.course = course;
+            this.grade = grade;
+        }
+    }
 
-##  Technologies Used
-- C#
-- .NET Console Application
-- LINQ
-- GitHub
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string filePath = "students.txt";
 
----
 
-##  Repository Contents
-- `Program.cs` – Main program file
-- `Student.cs` – Student class with attributes and constructor
-- `students.txt` – Generated file containing student records
-- `Screenshots/` – Folder containing screenshots of required outputs
+            // TASK 1: CREATE & WRITE FILE
 
----
+            List<Student> students = new List<Student>()
+            {
+                new Student(101, "Juan Cruz", "BSIT", 88),
+                new Student(102, "Maria Santos", "BSCS", 90),
+                new Student(103, "Ana Reyes", "BSIT", 75)
+            };
 
-##  Tasks Performed
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                foreach (Student s in students)
+                {
+                    writer.WriteLine($"{s.studentID},{s.name},{s.course},{s.grade}");
+                }
+            }
 
-###  Task 1: Student File Creation and Data Writing
-- Created a `Student` class with the following attributes:
-  - studentID
-  - name
-  - course
-  - grade
-- Initialized student objects using a constructor
-- Saved student records into `students.txt`
+            Console.WriteLine("students.txt file created and data written successfully.\n");
 
-###  Task 2: Reading File and Using LINQ (Method Syntax)
-- Read data from `students.txt`
-- Converted records into a `List<Student>`
-- Used LINQ Method Syntax to:
-  - Display students with grade greater than 85
-  - Sort students by grade (descending)
-  - Display only student names using projection
-  - Compute and display the average grade
+            // TASK 2: READ FILE & LINQ
 
----
+            List<Student> studentList = File.ReadAllLines(filePath)
+                .Select(line =>
+                {
+                    string[] data = line.Split(',');
+                    return new Student(
+                        int.Parse(data[0]),
+                        data[1],
+                        data[2],
+                        int.Parse(data[3])
+                    );
+                })
+                .ToList();
 
-##  Screenshots
-The `Screenshots` folder contains:
-- File creation
-- File writing
-- LINQ query execution
-- Program output results
+            // Students with Grade > 85
+            Console.WriteLine("Students with Grade > 85");
+            var highGrades = studentList
+                .Where(s => s.grade > 85)
+                .Select(s => $"{s.name} - {s.grade}");
 
----
+            foreach (var s in highGrades)
+                Console.WriteLine(s);
 
-##  How to Run the Program
-1. Open the project in Visual Studio
-2. Run the program using **Ctrl + F5**
-3. View the console output and generated `students.txt` file
+            Console.WriteLine();
 
----
+            // Sorted by Grade (Descending)
+            Console.WriteLine("Sorted by Grade (Descending)");
+            var sorted = studentList
+                .OrderByDescending(s => s.grade)
+                .Select(s => $"{s.name} - {s.grade}");
 
-##  Author
-**Rina Sugoran**
+            foreach (var s in sorted)
+                Console.WriteLine(s);
+
+            Console.WriteLine();
+
+            // Average Grade
+            double average = studentList.Average(s => s.grade);
+            Console.WriteLine($"Average Grade: {average:F2}");
+
+            Console.ReadLine();
+        }
+    }
+}
